@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Слепая печать — тренажёр</title>
+<link rel="icon" type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236d8bff'/%3E%3Cstop offset='1' stop-color='%23a78bfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='16' width='60' height='32' rx='7' fill='url(%23g)'/%3E%3Cg fill='%23ffffff' opacity='0.92'%3E%3Crect x='8.5' y='21' width='5' height='5.5' rx='1.2'/%3E%3Crect x='15.5' y='21' width='5' height='5.5' rx='1.2'/%3E%3Crect x='22.5' y='21' width='5' height='5.5' rx='1.2'/%3E%3Crect x='29.5' y='21' width='5' height='5.5' rx='1.2'/%3E%3Crect x='36.5' y='21' width='5' height='5.5' rx='1.2'/%3E%3Crect x='43.5' y='21' width='5' height='5.5' rx='1.2'/%3E%3Crect x='50.5' y='21' width='5' height='5.5' rx='1.2'/%3E%3Crect x='8.5' y='29' width='5' height='5.5' rx='1.2'/%3E%3Crect x='15.5' y='29' width='5' height='5.5' rx='1.2'/%3E%3Crect x='22.5' y='29' width='5' height='5.5' rx='1.2'/%3E%3Crect x='29.5' y='29' width='5' height='5.5' rx='1.2'/%3E%3Crect x='36.5' y='29' width='5' height='5.5' rx='1.2'/%3E%3Crect x='43.5' y='29' width='5' height='5.5' rx='1.2'/%3E%3Crect x='50.5' y='29' width='5' height='5.5' rx='1.2'/%3E%3Crect x='8.5' y='37' width='5' height='5.5' rx='1.2'/%3E%3Crect x='50.5' y='37' width='5' height='5.5' rx='1.2'/%3E%3Crect x='17' y='37' width='30' height='5.5' rx='1.5'/%3E%3C/g%3E%3C/svg%3E">
+<script>
+/* Тема применяется ДО отрисовки, чтобы не было вспышки */
+(function () {
+  try {
+    var mode = localStorage.getItem('tt-theme') || 'auto';
+    var theme;
+    if (mode === 'auto') {
+      var h = new Date().getHours();
+      theme = (h >= 7 && h < 20) ? 'light' : 'dark';
+    } else {
+      theme = mode;
+    }
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
+<style>
+  :root {
+    --bg: #0a0f1f;
+    --bg-grad-1: rgba(109,139,255,.20);
+    --bg-grad-2: rgba(167,139,250,.14);
+    --bg-grad-3: rgba(52,211,153,.07);
+
+    --panel: rgba(255,255,255,.035);
+    --panel-2: rgba(255,255,255,.06);
+    --border: rgba(255,255,255,.09);
+    --border-strong: rgba(255,255,255,.22);
+
+    --text: #e8ecf7;
+    --muted: #8b95b3;
+    --accent: #6d8bff;
+    --accent-2: #a78bfa;
+    --ok: #34d399;
+    --err: #f87171;
+
+    --hero-from: #ffffff;
+    --hero-mid: #a5b8ff;
+    --hero-to: #c9b6ff;
+
+    --char-idle: rgba(232,236,247,.42);
+    --char-current-color: #ffffff;
+    --char-current-bg: rgba(109,139,255,.22);
+    --char-current-ring: rgba(109,139,255,.55);
+    --char-current-space-bg: rgba(109,139,255,.30);
+
+    --kbd-bg: rgba(255,255,255,.022);
+    --key-bg-image: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.02));
+    --key-text: #f2f5ff;
+    --key-border: rgba(255,255,255,.12);
+    --key-border-bottom: rgba(0,0,0,.45);
+    --key-shadow: 0 1px 2px rgba(0,0,0,.55);
+
+    --next-bg: rgba(143,165,255,.92);
+    --next-image: linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.05));
+    --next-border: rgba(220,230,255,.95);
+    --next-shadow: 0 0 26px rgba(130,160,255,.9), 0 0 0 2px rgba(255,255,255,.65) inset;
+    --next-color: #ffffff;
+
+    --track-bg: rgba(255,255,255,.07);
+
+    --overlay-bg: rgba(6,10,22,.78);
+    --result-bg: linear-gradient(170deg, #171f38, #10162a);
+    --result-shadow: 0 30px 80px rgba(0,0,0,.6);
+    --result-border: rgba(255,255,255,.11);
+    --result-item-bg: rgba(255,255,255,.045);
+
+    --scheme-panel-bg: rgba(255,255,255,.03);
+    --home-ring-color: rgba(255,255,255,.55);
+    --scheme-home-ring-color: rgba(255,255,255,.55);
+
+    --error-key-bg: rgba(255,255,255,.06);
+    --finger-chip-bg: rgba(255,255,255,.045);
+    --error-empty-color: #34d399;
+
+    --kw: clamp(28px, 4.1vw, 50px);
+    --kh: clamp(34px, 4.8vw, 54px);
+    --gap: clamp(3px, .55vw, 7px);
+    --skw: clamp(24px, 3.6vw, 40px);
+
+    --lp: #f87171; --lr: #fbbf24; --lm: #34d399; --li: #60a5fa;
+    --ri: #a78bfa; --rm: #34d399; --rr: #fbbf24; --rp: #f87171;
+    --th: #94a3b8;
+  }
+
+  [data-theme="light"] {
+    --bg: #eef2f9;
+    --bg-grad-1: rgba(109,139,255,.16);
+    --bg-grad-2: rgba(167,139,250,.12);
+    --bg-grad-3: rgba(52,211,153,.10);
+
+    --panel: rgba(255,255,255,.78);
+    --panel-2: rgba(255,255,255,.95);
+    --border: rgba(15,23,42,.10);
+    --border-strong: rgba(15,23,42,.24);
+
+    --text: #0f172a;
+    --muted: #5b6684;
+    --accent: #4f6ef5;
+    --accent-2: #7c5cf0;
+    --ok: #059669;
+    --err: #dc2626;
+
+    --hero-from: #0b1226;
+    --hero-mid: #2f4bd4;
+    --hero-to: #6b46d4;
+
+    --char-idle: rgba(15,23,42,.35);
+    --char-current-color: #0f172a;
+    --char-current-bg: rgba(79,110,245,.16);
+    --char-current-ring: rgba(79,110,245,.60);
+    --char-current-space-bg: rgba(79,110,245,.24);
+
+    --kbd-bg: rgba(255,255,255,.7);
+    --key-bg-image: linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.20));
+    --key-text: #0f172a;
+    --key-border: rgba(15,23,42,.14);
+    --key-border-bottom: rgba(15,23,42,.30);
+    --key-shadow: 0 1px 1px rgba(15,23,42,.14);
+
+    --next-bg: #4f6ef5;
+    --next-image: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.08));
+    --next-border: #2f4bd4;
+    --next-shadow: 0 0 22px rgba(79,110,245,.55), 0 0 0 2px rgba(255,255,255,.9) inset;
+    --next-color: #ffffff;
+
+    --track-bg: rgba(15,23,42,.08);
+
+    --overlay-bg: rgba(15,23,42,.35);
+    --result-bg: linear-gradient(170deg, #ffffff, #e8eefb);
+    --result-shadow: 0 30px 60px rgba(15,23,42,.15);
+    --result-border: rgba(15,23,42,.08);
+    --result-item-bg: rgba(15,23,42,.035);
+
+    --scheme-panel-bg: rgba(255,255,255,.65);
+    --home-ring-color: rgba(15,23,42,.45);
+    --scheme-home-ring-color: rgba(15,23,42,.45);
+
+    --error-key-bg: rgba(15,23,42,.05);
+    --finger-chip-bg: rgba(15,23,42,.04);
+    --error-empty-color: #059669;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse 80% 55% at 50% -25%, var(--bg-grad-1), transparent 70%),
+      radial-gradient(ellipse 55% 45% at 85% 105%, var(--bg-grad-2), transparent 70%),
+      radial-gradient(ellipse 45% 40% at 5% 90%, var(--bg-grad-3), transparent 70%);
+    background-attachment: fixed;
+    color: var(--text);
+    min-height: 100vh;
+    padding: clamp(14px, 2.5vw, 32px);
+    -webkit-font-smoothing: antialiased;
+    transition: background-color .35s ease, color .35s ease;
+  }
+
+  .app { max-width: 1180px; margin: 0 auto; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; margin-bottom: clamp(20px, 4vw, 42px);
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    display: flex; align-items: center; gap: 11px;
+    font-weight: 700; font-size: clamp(15px, 1.7vw, 18px);
+    letter-spacing: -.02em;
+  }
+  .brand-icon {
+    width: 36px; height: 36px; border-radius: 11px;
+    display: grid; place-items: center;
+    background: linear-gradient(140deg, var(--accent), var(--accent-2));
+    box-shadow: 0 6px 22px rgba(109,139,255,.42);
+    font-size: 17px; color: #fff;
+  }
+
+  .topbar-right {
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .theme-btn {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: .18s;
+    padding: 0;
+    line-height: 1;
+  }
+  .theme-btn:hover { border-color: var(--border-strong); background: var(--panel-2); }
+  .theme-btn.muted { opacity: .5; }
+
+  .layout-switch {
+    display: flex; gap: 4px; padding: 4px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 13px;
+  }
+  .layout-switch button {
+    font: inherit; font-size: 13px; font-weight: 600;
+    color: var(--muted); background: transparent; border: 0;
+    padding: 8px 17px; border-radius: 9px; cursor: pointer;
+    transition: .18s; letter-spacing: .04em;
+  }
+  .layout-switch button:hover { color: var(--text); }
+  .layout-switch button.active {
+    background: linear-gradient(140deg, var(--accent), var(--accent-2));
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(109,139,255,.4);
+  }
+
+  .hero { text-align: center; margin-bottom: clamp(24px, 4vw, 44px); }
+  .hero h1 {
+    font-size: clamp(26px, 4.2vw, 46px);
+    font-weight: 800; letter-spacing: -.035em; line-height: 1.12;
+    background: linear-gradient(120deg, var(--hero-from) 20%, var(--hero-mid) 60%, var(--hero-to) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+  .hero p {
+    color: var(--muted); font-size: clamp(13px, 1.6vw, 16px);
+    max-width: 520px; margin: 0 auto; line-height: 1.6;
+  }
+
+  .lesson-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+    gap: 14px;
+  }
+
+  .lesson-card {
+    position: relative; overflow: hidden;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px 20px;
+    cursor: pointer;
+    transition: .22s cubic-bezier(.2,.7,.3,1), background-color .35s, border-color .35s;
+    text-align: left; font: inherit; color: inherit;
+  }
+  .lesson-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(140deg, rgba(109,139,255,.13), transparent 60%);
+    opacity: 0; transition: .22s;
+  }
+  .lesson-card:hover {
+    border-color: rgba(109,139,255,.45);
+    transform: translateY(-3px);
+    box-shadow: 0 14px 34px rgba(0,0,0,.18);
+  }
+  .lesson-card:hover::before { opacity: 1; }
+
+  .lesson-card > * { position: relative; }
+  .lesson-card .idx {
+    font-size: 11px; font-weight: 700; letter-spacing: .1em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 9px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .lesson-card .idx::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 9px var(--accent);
+  }
+  .lesson-card h3 {
+    font-size: 17px; font-weight: 700; letter-spacing: -.015em;
+    margin-bottom: 6px;
+  }
+  .lesson-card .desc {
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+  .lesson-card .best {
+    margin-top: 13px; font-size: 11.5px; color: var(--ok);
+    font-weight: 600; display: flex; align-items: center; gap: 5px;
+  }
+
+  .practice-top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; margin-bottom: 18px;
+  }
+
+  .btn-ghost {
+    font: inherit; font-size: 13.5px; font-weight: 600;
+    color: var(--muted); background: var(--panel);
+    border: 1px solid var(--border); border-radius: 11px;
+    padding: 9px 16px; cursor: pointer; transition: .18s;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border-strong); background: var(--panel-2); }
+
+  .btn-primary {
+    font: inherit; font-size: 14px; font-weight: 700;
+    color: #fff; background: linear-gradient(140deg, var(--accent), var(--accent-2));
+    border: 0; border-radius: 12px; padding: 12px 26px; cursor: pointer;
+    transition: .18s; box-shadow: 0 8px 24px rgba(109,139,255,.4);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(109,139,255,.5); }
+
+  .lesson-name {
+    font-size: 15px; font-weight: 700; letter-spacing: -.01em;
+    flex: 1; text-align: center; min-width: 120px;
+  }
+
+  .stats-row { display: flex; gap: 8px; }
+  .stat {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 7px 15px; text-align: center; min-width: 74px;
+  }
+  .stat-val {
+    display: block; font-size: 17px; font-weight: 800;
+    letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+  }
+  .stat-lbl {
+    display: block; font-size: 10px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .08em; margin-top: 1px;
+  }
+
+  .progress-track {
+    height: 5px; background: var(--track-bg);
+    border-radius: 99px; overflow: hidden; margin-bottom: clamp(18px, 3vw, 30px);
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--ok));
+    border-radius: 99px; transition: width .2s ease;
+  }
+
+  .text-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 20px; padding: clamp(22px, 4vw, 40px);
+    margin-bottom: 18px;
+    min-height: clamp(120px, 18vw, 175px);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .text-display {
+    font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+    font-size: clamp(18px, 2.35vw, 27px);
+    line-height: 1.95;
+    letter-spacing: .015em;
+    text-align: center;
+    max-width: 900px;
+    word-break: break-word;
+  }
+
+  .char {
+    display: inline-block; position: relative;
+    color: var(--char-idle);
+    transition: color .1s;
+    vertical-align: top;
+  }
+  .char.space { width: .48em; }
+  .char.done { color: var(--ok); }
+  .char.err {
+    color: var(--err);
+    animation: shake .16s ease;
+  }
+  .char.current {
+    color: var(--char-current-color);
+    border-radius: 5px;
+    background: var(--char-current-bg);
+    box-shadow: 0 0 0 2px var(--char-current-ring);
+  }
+  .char.current.space { background: var(--char-current-space-bg); }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    30% { transform: translateX(-3px); }
+    70% { transform: translateX(3px); }
+  }
+
+  .finger-hint {
+    text-align: center; font-size: 13px;
+    margin-bottom: clamp(14px, 2.4vw, 22px); min-height: 26px;
+  }
+  .finger-hint .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 14px; border-radius: 99px;
+    color: #0b1020;
+    font-weight: 700;
+  }
+
+  .keyboard {
+    display: flex; flex-direction: column; align-items: center;
+    gap: var(--gap);
+    padding: clamp(12px, 2vw, 22px);
+    background: var(--kbd-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    user-select: none;
+    transition: background-color .35s, border-color .35s;
+  }
+
+  .kb-row { display: flex; gap: var(--gap); }
+
+  .key {
+    width: var(--kw); height: var(--kh);
+    border-radius: 9px;
+    background-image: var(--key-bg-image);
+    border: 1px solid var(--key-border);
+    border-bottom: 2px solid var(--key-border-bottom);
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(11px, 1.35vw, 15px); font-weight: 700;
+    color: var(--key-text);
+    text-shadow: var(--key-shadow);
+    position: relative;
+    transition: background-color .13s, transform .1s, box-shadow .13s, color .2s;
+    flex: 0 0 auto;
+  }
+
+  .key-space { width: calc(var(--kw) * 7 + var(--gap) * 6); }
+
+  .key.next {
+    background-image: var(--next-image);
+    background-color: var(--next-bg);
+    border-color: var(--next-border);
+    color: var(--next-color);
+    text-shadow: 0 1px 2px rgba(0,0,0,.3);
+    box-shadow: var(--next-shadow);
+    transform: translateY(-3px);
+    z-index: 2;
+  }
+
+  .key.pressed {
+    transform: translateY(1px) scale(.96);
+    filter: brightness(1.35);
+  }
+
+  .scheme-bar {
+    display: flex; justify-content: center; align-items: center;
+    gap: 12px; margin-top: 14px; flex-wrap: wrap;
+  }
+  #schemeToggleBtn.active {
+    color: var(--text);
+    border-color: rgba(109,139,255,.55);
+    background: rgba(109,139,255,.14);
+  }
+
+  .scheme-panel {
+    margin-top: 14px;
+    background: var(--scheme-panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: clamp(16px, 3vw, 28px);
+    transition: background-color .35s, border-color .35s;
+  }
+
+  .scheme-title {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted);
+    text-align: center; margin-bottom: 16px;
+  }
+  .scheme-title + .scheme-title { margin-top: 12px; }
+
+  .scheme-note {
+    font-size: 12.5px; color: var(--muted);
+    text-align: center; line-height: 1.6; margin-bottom: 20px;
+  }
+  .scheme-note b { color: var(--text); }
+
+  .hands {
+    display: flex; justify-content: center;
+    gap: clamp(24px, 6vw, 80px); flex-wrap: wrap; margin-bottom: 30px;
+  }
+
+  .hand-block { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .hand { display: flex; align-items: flex-end; gap: clamp(3px, .6vw, 6px); }
+
+  .finger-bar {
+    width: clamp(24px, 3.6vw, 40px);
+    height: var(--h, 50px);
+    border-radius: 10px 10px 6px 6px;
+    display: grid; place-items: end center;
+    padding-bottom: 7px;
+    font-size: clamp(9px, 1.1vw, 12px); font-weight: 800;
+    color: rgba(10,15,31,.9);
+    transition: transform .18s, box-shadow .18s;
+  }
+
+  .finger-bar.next {
+    outline: 3px solid #fff;
+    outline-offset: 1px;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 26px rgba(255,255,255,.35);
+  }
+
+  .hand-caption {
+    font-size: 11px; color: var(--muted);
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+
+  .scheme-keyboard {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 5px; margin-bottom: 22px;
+  }
+
+  .scheme-row { display: flex; gap: 5px; }
+
+  .scheme-key {
+    width: var(--skw); height: var(--skw);
+    border-radius: 7px;
+    display: grid; place-items: center;
+    font-size: clamp(9px, 1.1vw, 13px); font-weight: 800;
+    color: rgba(10,15,31,.9);
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.22);
+    transition: .15s;
+  }
+
+  .scheme-key.home {
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.42), 0 0 0 2px var(--scheme-home-ring-color);
+  }
+
+  .scheme-key.next {
+    outline: 3px solid #fff;
+    outline-offset: 1px;
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 6px rgba(15,23,42,.55),
+      0 0 18px rgba(255,255,255,.8);
+    z-index: 2;
+    position: relative;
+  }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  }
+
+  .legend-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 700;
+    color: rgba(10,15,31,.9);
+    border-radius: 8px; padding: 6px 12px;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,.22);
+  }
+
+  .result-overlay {
+    position: fixed; inset: 0; z-index: 50;
+    display: grid; place-items: center;
+    background: var(--overlay-bg);
+    backdrop-filter: blur(9px);
+    padding: 20px;
+    transition: background-color .35s;
+  }
+
+  .result-card {
+    width: min(460px, 100%);
+    max-height: min(90vh, 800px);
+    overflow-y: auto;
+    background: var(--result-bg);
+    border: 1px solid var(--result-border);
+    border-radius: 24px;
+    padding: clamp(26px, 5vw, 38px);
+    text-align: center;
+    box-shadow: var(--result-shadow);
+    transition: background .35s, border-color .35s;
+  }
+
+  .result-card h2 {
+    font-size: 22px; font-weight: 800; letter-spacing: -.025em;
+    margin-bottom: 4px;
+  }
+  .result-card .sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+  .result-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-bottom: 22px;
+  }
+  .result-item {
+    background: var(--result-item-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 15px 10px;
+  }
+  .result-item .v {
+    font-size: 25px; font-weight: 800; letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums; line-height: 1.1;
+  }
+  .result-item .k {
+    font-size: 10.5px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: .09em; margin-top: 5px;
+  }
+  .result-item.hl .v { color: var(--ok); }
+  .result-item.hl { border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.08); }
+
+  .result-actions { display: flex; gap: 10px; margin-top: 22px; }
+  .result-actions button { flex: 1; }
+
+  .record-note {
+    font-size: 12.5px; color: var(--ok); font-weight: 600;
+    margin-bottom: 18px; display: flex; align-items: center;
+    justify-content: center; gap: 6px;
+  }
+
+  .error-section {
+    margin-top: 18px; padding-top: 16px;
+    border-top: 1px solid var(--border);
+    text-align: left;
+  }
+  .error-section h3 {
+    font-size: 14px; font-weight: 700; margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .error-list {
+    display: flex; flex-direction: column; gap: 6px;
+    max-height: 160px; overflow-y: auto; padding-right: 4px;
+  }
+  .error-item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+  .error-key {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 24px; height: 24px; padding: 0 7px;
+    border-radius: 6px; background: var(--error-key-bg);
+    border: 1px solid var(--border);
+    font-family: ui-monospace, monospace; font-weight: 700;
+    color: var(--err);
+  }
+  .error-bar {
+    flex: 1; height: 6px; background: var(--track-bg);
+    border-radius: 99px; overflow: hidden;
+  }
+  .error-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--err), #fb923c);
+    border-radius: 99px;
+  }
+  .error-count {
+    font-size: 11px; color: var(--muted);
+    min-width: 24px; text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .finger-errors {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;
+  }
+  .finger-chip {
+    font-size: 11px; padding: 4px 9px; border-radius: 99px;
+    background: var(--finger-chip-bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .finger-chip b { color: var(--err); font-weight: 700; }
+  .error-empty {
+    font-size: 13px; color: var(--error-empty-color);
+    text-align: center; padding: 10px 0;
+  }
+
+  @media (max-width: 640px) {
+    .practice-top { justify-content: center; }
+    .lesson-name { order: -1; flex-basis: 100%; text-align: left; }
+    .stat { min-width: 62px; padding: 6px 10px; }
+    .stat-val { font-size: 15px; }
+    .result-grid { gap: 8px; }
+    .result-card { max-height: 88vh; }
+    .brand span { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">⌨</div>
+      <span>Слепая печать</span>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-btn" id="themeBtn" title="Тема: авто">🌓</button>
+      <button class="theme-btn" id="soundBtn" title="Звук включён">🔊</button>
+      <div class="layout-switch" id="layoutSwitch">
+        <button data-layout="ru" class="active">РУС</button>
+        <button data-layout="en">ENG</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="menuView">
+      <div class="hero">
+        <h1>Научись печатать вслепую</h1>
+        <p>Десять пальцев, ритм и точность. Начни с основного ряда — и через пару недель пальцы сами будут находить нужные клавиши.</p>
+      </div>
+      <div class="lesson-grid" id="lessonGrid"></div>
+    </section>
+
+    <section id="practiceView" hidden>
+      <div class="practice-top">
+        <button class="btn-ghost" id="backBtn">← Уроки</button>
+        <div class="lesson-name" id="lessonName"></div>
+        <div class="stats-row">
+          <div class="stat"><span class="stat-val" id="statSpeed">0</span><span class="stat-lbl">зн/мин</span></div>
+          <div class="stat"><span class="stat-val" id="statAcc">100%</span><span class="stat-lbl">точность</span></div>
+          <div class="stat"><span class="stat-val" id="statErr">0</span><span class="stat-lbl">ошибки</span></div>
+        </div>
+      </div>
+
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+      <div class="text-card">
+        <div class="text-display" id="textDisplay"></div>
+      </div>
+
+      <div class="finger-hint" id="fingerHint"></div>
+
+      <div class="keyboard" id="keyboard"></div>
+
+      <div class="scheme-bar">
+        <button class="btn-ghost" id="schemeToggleBtn">Схема пальцев</button>
+      </div>
+
+      <div class="scheme-panel" id="schemePanel">
+        <div class="scheme-title">Пальцы рук</div>
+        <div class="hands" id="schemeHands"></div>
+
+        <div class="scheme-title">Зоны пальцев на клавиатуре</div>
+        <div class="scheme-note">Каждая клавиша окрашена в цвет пальца, которым её нажимают. Клавиши с рамкой — <b>домашний ряд</b> (Ф и О / F и J).</div>
+        <div class="scheme-keyboard" id="schemeKeyboard"></div>
+
+        <div class="legend" id="schemeLegend"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="result-overlay" id="resultOverlay" hidden>
+  <div class="result-card">
+    <h2>Урок завершён!</h2>
+    <div class="sub" id="resultSub">Отличная работа</div>
+    <div id="recordNote"></div>
+    <div class="result-grid">
+      <div class="result-item hl"><div class="v" id="rSpeed">0</div><div class="k">зн/мин</div></div>
+      <div class="result-item"><div class="v" id="rAcc">0%</div><div class="k">точность</div></div>
+      <div class="result-item"><div class="v" id="rErr">0</div><div class="k">ошибок</div></div>
+      <div class="result-item"><div class="v" id="rTime">0с</div><div class="k">время</div></div>
+    </div>
+
+    <div id="errorStatsSection" class="error-section" hidden>
+      <h3>
+        Статистика ошибок
+        <span id="errTotalLabel" style="font-weight:400;color:var(--muted);font-size:12px;"></span>
+      </h3>
+      <div id="errorStatsContent"></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn-primary" id="retryBtn">Ещё раз</button>
+      <button class="btn-ghost" id="menuBtn">К урокам</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   ЦВЕТА ПАЛЬЦЕВ
+   ========================================================= */
+const FINGER_RGB = {
+  lp: [248,113,113], lr: [251,191,36], lm: [52,211,153], li: [96,165,250],
+  ri: [167,139,250], rm: [52,211,153], rr: [251,191,36], rp: [248,113,113],
+  th: [148,163,184]
+};
+
+function fingerSolid(f) {
+  const c = FINGER_RGB[f] || FINGER_RGB.th;
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+
+function isLightTheme() {
+  return document.documentElement.getAttribute('data-theme') === 'light';
+}
+
+function keyTint(f, home) {
+  const c = FINGER_RGB[f] || FINGER_RGB.th;
+  const alpha = isLightTheme()
+    ? (home ? 0.78 : 0.55)
+    : (home ? 0.45 : 0.30);
+  return `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
+}
+
+/* =========================================================
+   ДАННЫЕ
+   ========================================================= */
+const FINGER = {
+  Backquote:'lp', KeyQ:'lp', KeyA:'lp', KeyZ:'lp',
+  KeyW:'lr', KeyS:'lr', KeyX:'lr',
+  KeyE:'lm', KeyD:'lm', KeyC:'lm',
+  KeyR:'li', KeyF:'li', KeyV:'li', KeyT:'li', KeyG:'li', KeyB:'li',
+  KeyY:'ri', KeyH:'ri', KeyN:'ri', KeyU:'ri', KeyJ:'ri', KeyM:'ri',
+  KeyI:'rm', KeyK:'rm', Comma:'rm',
+  KeyO:'rr', KeyL:'rr', Period:'rr',
+  KeyP:'rp', Semicolon:'rp', Slash:'rp', BracketLeft:'rp', Quote:'rp', BracketRight:'rp',
+  Space:'th'
+};
+
+const FINGER_NAMES = {
+  lp: 'левый мизинец', lr: 'левый безымянный', lm: 'левый средний', li: 'левый указательный',
+  ri: 'правый указательный', rm: 'правый средний', rr: 'правый безымянный', rp: 'правый мизинец',
+  th: 'большой палец'
+};
+
+const ROWS = [
+  ['Backquote','KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','BracketLeft','BracketRight'],
+  ['KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Semicolon','Quote'],
+  ['KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','Comma','Period','Slash']
+];
+
+const LAYOUTS = {
+  ru: {
+    label: 'Русский', rows: ROWS,
+    chars: {
+      Backquote:'ё', KeyQ:'й', KeyW:'ц', KeyE:'у', KeyR:'к', KeyT:'е', KeyY:'н',
+      KeyU:'г', KeyI:'ш', KeyO:'щ', KeyP:'з', BracketLeft:'х', BracketRight:'ъ',
+      KeyA:'ф', KeyS:'ы', KeyD:'в', KeyF:'а', KeyG:'п', KeyH:'р', KeyJ:'о',
+      KeyK:'л', KeyL:'д', Semicolon:'ж', Quote:'э',
+      KeyZ:'я', KeyX:'ч', KeyC:'с', KeyV:'м', KeyB:'и', KeyN:'т', KeyM:'ь',
+      Comma:'б', Period:'ю', Slash:'.'
+    },
+    shift: { Slash: ',' }
+  },
+  en: {
+    label: 'English', rows: ROWS,
+    chars: {
+      Backquote:'`', KeyQ:'q', KeyW:'w', KeyE:'e', KeyR:'r', KeyT:'t', KeyY:'y',
+      KeyU:'u', KeyI:'i', KeyO:'o', KeyP:'p', BracketLeft:'[', BracketRight:']',
+      KeyA:'a', KeyS:'s', KeyD:'d', KeyF:'f', KeyG:'g', KeyH:'h', KeyJ:'j',
+      KeyK:'k', KeyL:'l', Semicolon:';', Quote:"'",
+      KeyZ:'z', KeyX:'x', KeyC:'c', KeyV:'v', KeyB:'b', KeyN:'n', KeyM:'m',
+      Comma:',', Period:'.', Slash:'/'
+    },
+    shift: {}
+  }
+};
+
+const WORDS_RU_SHORT = ('дом кот сок лес нос рот год мир час сад лук сон сыр мел соль боль роль ноль ' +
+  'стол стул окно дело тело небо лето зима река море гора вода ' +
+  'огонь снег луна друг мама папа брат сын дочь дети игра утро ' +
+  'книга рука нога глаз ухо путь шар жук лак рак бак ток бок сок ' +
+  'дал мал зал вал пар пир тир жир мир пик бык лоб пол вол гол ' +
+  'эхо эта эти юла яма яма еда ежи ила').split(' ');
+
+const WORDS_RU_LONG = ('весна осень дорога машина поезд письмо телефон музыка песня ' +
+  'спорт вечер город школа голова палец сердце ветер дождь звезда ' +
+  'трава цветок птица рыба зверь семья сестра работа время жизнь ' +
+  'слово место вопрос ответ начало конец компьютер интернет ' +
+  'футбол хоккей плавание прыжок сегодня завтра вчера сейчас ' +
+  'потом всегда никогда иногда часто редко хорошо быстро ' +
+  'медленно красиво интересно').split(' ');
+
+const SENTENCES_RU = [
+  'съешь же ещё этих мягких французских булок, да выпей чаю.',
+  'в чащах юга жил бы цитрус, да, но фальшивый экземпляр.',
+  'слепая печать это навык, который экономит время.',
+  'каждый день тренируйся хотя бы по пятнадцать минут.',
+  'терпение и труд всё перетрут.',
+  'не откладывай на завтра то, что можно сделать сегодня.',
+  'быстрая печать требует точности, а не спешки.',
+  'пальцы должны запомнить расположение клавиш.',
+  'смотри на экран, а не на клавиатуру.',
+  'ровный ритм важнее высокой скорости.'
+];
+
+const WORDS_EN_SHORT = ('the and for are but not you all any can had her was one our ' +
+  'out day get has him his how man new now old see two way who boy ' +
+  'did its let put say she too use dad mom run sun key top box fix ' +
+  'job map net oak pen red sky tea van web yes zip fox jump').split(' ');
+
+const WORDS_EN_LONG = ('about above after again alone along also always another ' +
+  'around because before being below between both bring build ' +
+  'change check clear close could course create during early ' +
+  'every found great group happy house human inside learn light ' +
+  'little never night number often other place point right ' +
+  'school second should simple small sound start still story ' +
+  'study take that their there thing think three today together ' +
+  'under until water where which while world would write').split(' ');
+
+const SENTENCES_EN = [
+  'the quick brown fox jumps over the lazy dog.',
+  'pack my box with five dozen liquor jugs.',
+  'how vexingly quick daft zebras jump.',
+  'touch typing is a skill that saves time.',
+  'practice every day for at least fifteen minutes.',
+  'accuracy comes before speed.',
+  'keep your fingers on the home row.',
+  'look at the screen, not at the keyboard.',
+  'a steady rhythm beats a frantic burst.',
+  'small steps every day lead to big results.'
+];
+
+const LESSONS = {
+  ru: [
+    { id:'ru-home', title:'Основной ряд', desc:'ф ы в а — о л д ж', type:'chars', data:'фываолдж' },
+    { id:'ru-top', title:'Верхний ряд', desc:'й ц у к е н г ш щ з х ъ', type:'chars', data:'йцукенгшщзхъ' },
+    { id:'ru-bottom', title:'Нижний ряд', desc:'я ч с м и т ь б ю', type:'chars', data:'ячсмитьбю' },
+    { id:'ru-all', title:'Все буквы', desc:'Полный алфавит вперемешку', type:'chars', data:'йцукенгшщзхъфывапролджэячсмитьбю' },
+    { id:'ru-words-s', title:'Короткие слова', desc:'3–4 буквы', type:'words', data: WORDS_RU_SHORT },
+    { id:'ru-words-l', title:'Длинные слова', desc:'5+ букв', type:'words', data: WORDS_RU_LONG },
+    { id:'ru-sent', title:'Фразы', desc:'Предложения целиком', type:'sentences', data: SENTENCES_RU }
+  ],
+  en: [
+    { id:'en-home', title:'Home row', desc:'a s d f g — h j k l', type:'chars', data:'asdfghjkl' },
+    { id:'en-top', title:'Top row', desc:'q w e r t y u i o p', type:'chars', data:'qwertyuiop' },
+    { id:'en-bottom', title:'Bottom row', desc:'z x c v b n m', type:'chars', data:'zxcvbnm' },
+    { id:'en-all', title:'All letters', desc:'Full alphabet shuffled', type:'chars', data:'qwertyuiopasdfghjklzxcvbnm' },
+    { id:'en-words-s', title:'Short words', desc:'3–4 letters', type:'words', data: WORDS_EN_SHORT },
+    { id:'en-words-l', title:'Long words', desc:'5+ letters', type:'words', data: WORDS_EN_LONG },
+    { id:'en-sent', title:'Sentences', desc:'Full sentences', type:'sentences', data: SENTENCES_EN }
+  ]
+};
+
+/* =========================================================
+   localStorage
+   ========================================================= */
+const safeStorage = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+
+/* =========================================================
+   СОСТОЯНИЕ
+   ========================================================= */
+const state = {
+  layout: 'ru',
+  lesson: null,
+  text: '',
+  index: 0,
+  correct: 0,
+  total: 0,
+  errors: 0,
+  started: false,
+  finished: false,
+  startTime: 0,
+  timerId: null,
+  charEls: [],
+  charToCode: {},
+  charToFinger: {},
+  errorStats: { byChar: {}, byCode: {}, byFinger: {}, total: 0 }
+};
+
+let schemeOpen = safeStorage.get('tt-scheme-open') !== '0';
+let themeMode = safeStorage.get('tt-theme') || 'auto';
+let soundEnabled = safeStorage.get('tt-sound') !== '0';
+
+/* =========================================================
+   DOM
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const menuView = $('menuView');
+const practiceView = $('practiceView');
+const lessonGrid = $('lessonGrid');
+const textDisplay = $('textDisplay');
+const keyboardEl = $('keyboard');
+const fingerHint = $('fingerHint');
+const resultOverlay = $('resultOverlay');
+const schemePanel = $('schemePanel');
+const schemeToggleBtn = $('schemeToggleBtn');
+const themeBtn = $('themeBtn');
+const soundBtn = $('soundBtn');
+
+/* =========================================================
+   УТИЛИТЫ
+   ========================================================= */
+function buildMaps(layout) {
+  const L = LAYOUTS[layout];
+  const c2c = {}, c2f = {};
+  for (const code in L.chars) {
+    const ch = L.chars[code];
+    c2c[ch] = code; c2f[ch] = FINGER[code];
+  }
+  for (const code in (L.shift || {})) {
+    const ch = L.shift[code];
+    c2c[ch] = code; c2f[ch] = FINGER[code];
+  }
+  c2c[' '] = 'Space'; c2f[' '] = 'th';
+  state.charToCode = c2c;
+  state.charToFinger = c2f;
+}
+
+function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function genFromChars(chars, target = 88) {
+  const groups = []; let len = 0;
+  while (len < target) {
+    const n = 3 + Math.floor(Math.random() * 3);
+    let g = '';
+    for (let i = 0; i < n; i++) g += chars[Math.floor(Math.random() * chars.length)];
+    groups.push(g); len += n + 1;
+  }
+  return groups.join(' ');
+}
+
+function genWords(words, target = 12) {
+  const out = [];
+  for (let i = 0; i < target; i++) out.push(rand(words));
+  return out.join(' ');
+}
+
+function genSentences(list) {
+  let s = '', guard = 0;
+  while (s.length < 75 && guard++ < 20) s += (s ? ' ' : '') + rand(list);
+  return s;
+}
+
+function buildText(lesson) {
+  if (lesson.type === 'chars') return genFromChars(lesson.data);
+  if (lesson.type === 'words') return genWords(lesson.data, 13);
+  return genSentences(lesson.data);
+}
+
+function bestKey(lessonId) { return `tt-best-${state.layout}-${lessonId}`; }
+function getBest(lessonId) {
+  const v = safeStorage.get(bestKey(lessonId));
+  return v ? parseInt(v, 10) : 0;
+}
+
+/* =========================================================
+   ТЕМА
+   ========================================================= */
+function getTimeTheme() {
+  const h = new Date().getHours();
+  return (h >= 7 && h < 20) ? 'light' : 'dark';
+}
+
+function effectiveTheme() {
+  return themeMode === 'auto' ? getTimeTheme() : themeMode;
+}
+
+function updateThemeBtn() {
+  if (!themeBtn) return;
+  const theme = effectiveTheme();
+  let icon, title;
+  if (themeMode === 'light') { icon = '☀️'; title = 'Тема: светлая (нажмите — тёмная)'; }
+  else if (themeMode === 'dark') { icon = '🌙'; title = 'Тема: тёмная (нажмите — авто)'; }
+  else {
+    title = `Тема: авто (сейчас ${theme === 'light' ? 'светлая' : 'тёмная'})`;
+    icon = theme === 'light' ? '🌤' : '🌓';
+  }
+  themeBtn.textContent = icon;
+  themeBtn.title = title;
+}
+
+function applyTheme() {
+  const theme = effectiveTheme();
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeBtn();
+  if (!practiceView.hidden && state.text.length) {
+    const currentCh = state.text[state.index];
+    renderKeyboard();
+    highlightKey(currentCh);
+  }
+}
+
+if (themeBtn) {
+  themeBtn.addEventListener('click', () => {
+    const cycle = { auto: 'light', light: 'dark', dark: 'auto' };
+    themeMode = cycle[themeMode] || 'auto';
+    safeStorage.set('tt-theme', themeMode);
+    applyTheme();
+  });
+}
+
+setInterval(() => {
+  if (themeMode !== 'auto') return;
+  const newTheme = getTimeTheme();
+  if (document.documentElement.getAttribute('data-theme') !== newTheme) {
+    applyTheme();
+  }
+}, 60 * 1000);
+
+/* =========================================================
+   ЗВУК: ФАНФАРЫ
+   ========================================================= */
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      audioCtx = new AC();
+    } catch (e) {
+      return null;
+    }
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
+  }
+  return audioCtx;
+}
+
+function playFanfare() {
+  if (!soundEnabled) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime + 0.05;
+    const master = ctx.createGain();
+    master.gain.value = 0.35;
+    master.connect(ctx.destination);
+
+    // "Медный" звук: пила + лёгкая расстройка + фильтр
+    function brass(freq, start, dur, vol) {
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc1.type = 'sawtooth';
+      osc2.type = 'sawtooth';
+      osc1.frequency.value = freq;
+      osc2.frequency.value = freq * 1.006;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 2800;
+      filter.Q.value = 2;
+
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(vol, start + 0.02);
+      gain.gain.setValueAtTime(vol, start + dur * 0.6);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gain);
+      gain.connect(master);
+
+      osc1.start(start);
+      osc2.start(start);
+      osc1.stop(start + dur + 0.05);
+      osc2.stop(start + dur + 0.05);
+    }
+
+    // Восходящее арпеджио: G4 → C5 → E5
+    brass(392.00, now,        0.13, 0.55);  // G4
+    brass(523.25, now + 0.13, 0.13, 0.55);  // C5
+    brass(659.25, now + 0.26, 0.13, 0.55);  // E5
+
+    // Финальный аккорд: G5 + C5 + E5 + C6 (держится)
+    const fs = now + 0.39;
+    brass(783.99,  fs, 0.9, 0.50);  // G5 — ведущая
+    brass(523.25,  fs, 0.9, 0.25);  // C5
+    brass(659.25,  fs, 0.9, 0.25);  // E5
+    brass(1046.50, fs, 0.9, 0.30);  // C6 — яркость
+  } catch (e) {
+    console.error('Fanfare error:', e);
+  }
+}
+
+function playPreviewBlip() {
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  try {
+    const now = ctx.currentTime + 0.02;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.12, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.2);
+  } catch (e) {}
+}
+
+function updateSoundBtn() {
+  if (!soundBtn) return;
+  soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+  soundBtn.title = soundEnabled
+    ? 'Звук включён (нажмите, чтобы выключить)'
+    : 'Звук выключен (нажмите, чтобы включить)';
+  soundBtn.classList.toggle('muted', !soundEnabled);
+}
+
+if (soundBtn) {
+  soundBtn.addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    safeStorage.set('tt-sound', soundEnabled ? '1' : '0');
+    updateSoundBtn();
+    if (soundEnabled) playPreviewBlip();
+  });
+}
+
+/* =========================================================
+   МЕНЮ
+   ========================================================= */
+function renderMenu() {
+  const lessons = LESSONS[state.layout];
+  lessonGrid.innerHTML = '';
+  lessons.forEach((lesson, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'lesson-card';
+    const best = getBest(lesson.id);
+    btn.innerHTML = `
+      <div class="idx">Урок ${i + 1}</div>
+      <h3>${lesson.title}</h3>
+      <div class="desc">${lesson.desc}</div>
+      ${best ? `<div class="best">★ Рекорд: ${best} зн/мин</div>` : ''}
+    `;
+    btn.addEventListener('click', () => startLesson(lesson));
+    lessonGrid.appendChild(btn);
+  });
+}
+
+/* =========================================================
+   КЛАВИАТУРА
+   ========================================================= */
+function renderKeyboard() {
+  const L = LAYOUTS[state.layout];
+  keyboardEl.innerHTML = '';
+
+  const offsets = [0, 0.55, 1.1];
+
+  L.rows.forEach((row, ri) => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'kb-row';
+    if (offsets[ri]) rowEl.style.marginLeft = `calc((var(--kw) + var(--gap)) * ${offsets[ri]})`;
+
+    row.forEach(code => {
+      const key = document.createElement('div');
+      key.className = 'key';
+      const home = (code === 'KeyF' || code === 'KeyJ');
+      if (home) key.classList.add('home');
+      key.dataset.code = code;
+      key.dataset.char = L.chars[code];
+      key.textContent = L.chars[code].toUpperCase();
+      key.title = FINGER_NAMES[FINGER[code]] || '';
+      key.style.backgroundColor = keyTint(FINGER[code], home);
+      rowEl.appendChild(key);
+    });
+    keyboardEl.appendChild(rowEl);
+  });
+
+  const spaceRow = document.createElement('div');
+  spaceRow.className = 'kb-row';
+  const space = document.createElement('div');
+  space.className = 'key key-space';
+  space.dataset.code = 'Space';
+  space.dataset.char = ' ';
+  space.title = FINGER_NAMES.th;
+  space.style.backgroundColor = keyTint('th', false);
+  spaceRow.appendChild(space);
+  keyboardEl.appendChild(spaceRow);
+}
+
+/* =========================================================
+   СХЕМА ПАЛЬЦЕВ
+   ========================================================= */
+const HAND_FINGERS = {
+  left: [
+    { f:'lp', h:40, n:1 }, { f:'lr', h:56, n:2 }, { f:'lm', h:64, n:3 },
+    { f:'li', h:56, n:4 }, { f:'th', h:32, n:5 }
+  ],
+  right: [
+    { f:'th', h:32, n:5 }, { f:'ri', h:56, n:4 }, { f:'rm', h:64, n:3 },
+    { f:'rr', h:56, n:2 }, { f:'rp', h:40, n:1 }
+  ]
+};
+
+function renderScheme() {
+  const L = LAYOUTS[state.layout];
+
+  const handsEl = $('schemeHands');
+  if (!handsEl) return;
+  handsEl.innerHTML = '';
+
+  Object.entries(HAND_FINGERS).forEach(([side, fingers]) => {
+    const block = document.createElement('div');
+    block.className = 'hand-block';
+
+    const hand = document.createElement('div');
+    hand.className = 'hand';
+
+    fingers.forEach(fd => {
+      const bar = document.createElement('div');
+      bar.className = 'finger-bar';
+      bar.dataset.finger = fd.f;
+      bar.style.backgroundColor = fingerSolid(fd.f);
+      bar.style.setProperty('--h', fd.h + 'px');
+      bar.textContent = fd.n;
+      bar.title = FINGER_NAMES[fd.f];
+      hand.appendChild(bar);
+    });
+
+    const cap = document.createElement('div');
+    cap.className = 'hand-caption';
+    cap.textContent = side === 'left' ? 'левая рука' : 'правая рука';
+    block.appendChild(hand);
+    block.appendChild(cap);
+    handsEl.appendChild(block);
+  });
+
+  const kb = $('schemeKeyboard');
+  if (!kb) return;
+  kb.innerHTML = '';
+  const offsets = [0, 0.55, 1.1];
+
+  L.rows.forEach((row, ri) => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'scheme-row';
+    if (offsets[ri]) rowEl.style.marginLeft = `calc((var(--skw) + 5px) * ${offsets[ri]})`;
+
+    row.forEach(code => {
+      const key = document.createElement('div');
+      key.className = 'scheme-key';
+      if (code === 'KeyF' || code === 'KeyJ') key.classList.add('home');
+      key.dataset.code = code;
+      key.textContent = L.chars[code].toUpperCase();
+      key.title = FINGER_NAMES[FINGER[code]] || '';
+      key.style.backgroundColor = fingerSolid(FINGER[code]);
+      rowEl.appendChild(key);
+    });
+    kb.appendChild(rowEl);
+  });
+
+  const spaceRow = document.createElement('div');
+  spaceRow.className = 'scheme-row';
+  const space = document.createElement('div');
+  space.className = 'scheme-key';
+  space.dataset.code = 'Space';
+  space.style.backgroundColor = fingerSolid('th');
+  space.style.width = 'calc(var(--skw) * 7 + 5px * 6)';
+  space.title = FINGER_NAMES.th;
+  spaceRow.appendChild(space);
+  kb.appendChild(spaceRow);
+
+  const legend = $('schemeLegend');
+  if (!legend) return;
+  legend.innerHTML = '';
+  ['lp','lr','lm','li','th','ri','rm','rr','rp'].forEach(f => {
+    const chip = document.createElement('span');
+    chip.className = 'legend-chip';
+    chip.textContent = FINGER_NAMES[f];
+    chip.style.backgroundColor = fingerSolid(f);
+    legend.appendChild(chip);
+  });
+}
+
+function highlightScheme(ch) {
+  const kb = $('schemeKeyboard');
+  if (!kb) return;
+  kb.querySelectorAll('.scheme-key.next').forEach(el => el.classList.remove('next'));
+  if (ch === undefined) return;
+  const code = state.charToCode[ch];
+  if (!code) return;
+  const el = kb.querySelector(`.scheme-key[data-code="${code}"]`);
+  if (el) el.classList.add('next');
+}
+
+function highlightHands(finger) {
+  document.querySelectorAll('.finger-bar.next').forEach(el => el.classList.remove('next'));
+  if (!finger) return;
+  document.querySelectorAll(`.finger-bar[data-finger="${finger}"]`)
+    .forEach(el => el.classList.add('next'));
+}
+
+function syncSchemeHighlight() {
+  if (!schemeOpen || practiceView.hidden) return;
+  const ch = state.text[state.index];
+  highlightScheme(ch);
+  highlightHands(state.charToFinger[ch]);
+}
+
+/* =========================================================
+   ТЕКСТ
+   ========================================================= */
+function renderText() {
+  textDisplay.innerHTML = '';
+  state.charEls = [];
+  for (let i = 0; i < state.text.length; i++) {
+    const ch = state.text[i];
+    const span = document.createElement('span');
+    span.className = 'char';
+    if (ch === ' ') span.classList.add('space');
+    else span.textContent = ch;
+    span.dataset.i = i;
+    textDisplay.appendChild(span);
+    state.charEls.push(span);
+  }
+}
+
+function setCurrent(i) {
+  state.charEls.forEach(el => el.classList.remove('current'));
+  const el = state.charEls[i];
+  if (el) el.classList.add('current');
+  highlightKey(state.text[i]);
+  updateFingerHint(state.text[i]);
+  syncSchemeHighlight();
+}
+
+function highlightKey(ch) {
+  keyboardEl.querySelectorAll('.key.next').forEach(el => el.classList.remove('next'));
+  if (ch === undefined) return;
+  const code = state.charToCode[ch];
+  if (!code) return;
+  const el = keyboardEl.querySelector(`.key[data-code="${code}"]`);
+  if (el) el.classList.add('next');
+}
+
+function updateFingerHint(ch) {
+  if (ch === undefined) { fingerHint.innerHTML = ''; return; }
+  const f = state.charToFinger[ch] || 'th';
+  const name = FINGER_NAMES[f] || 'большой палец';
+  fingerHint.innerHTML =
+    `<span class="pill" style="background:${fingerSolid(f)}">${name}</span>`;
+}
+
+/* =========================================================
+   СТАТИСТИКА
+   ========================================================= */
+function elapsed() { return state.started ? (Date.now() - state.startTime) / 1000 : 0; }
+function currentSpeed() {
+  const t = elapsed();
+  if (t < 0.6) return 0;
+  return Math.round((state.correct / t) * 60);
+}
+function currentAccuracy() {
+  if (state.total === 0) return 100;
+  return Math.round((state.correct / state.total) * 100);
+}
+
+function updateStats() {
+  $('statSpeed').textContent = currentSpeed();
+  $('statAcc').textContent = currentAccuracy() + '%';
+  $('statErr').textContent = state.errors;
+}
+
+function updateProgress() {
+  const p = state.text.length ? (state.index / state.text.length) * 100 : 0;
+  $('progressFill').style.width = p + '%';
+}
+
+function startTimer() {
+  state.started = true;
+  state.startTime = Date.now();
+  clearInterval(state.timerId);
+  state.timerId = setInterval(updateStats, 200);
+}
+
+/* =========================================================
+   ОШИБКИ
+   ========================================================= */
+function renderErrorStats() {
+  const section = $('errorStatsSection');
+  const content = $('errorStatsContent');
+  const totalLabel = $('errTotalLabel');
+  const stats = state.errorStats;
+
+  section.hidden = false;
+  totalLabel.textContent = stats.total ? `(${stats.total})` : '';
+
+  if (!stats.total) {
+    content.innerHTML = '<div class="error-empty">Ошибок нет — отличная работа!</div>';
+    return;
+  }
+
+  const entries = Object.entries(stats.byChar).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxCount = entries[0] ? entries[0][1] : 1;
+
+  const listHtml = entries.map(([ch, count]) => {
+    const display = ch === ' ' ? '␣' : ch.toUpperCase();
+    const pct = Math.round((count / maxCount) * 100);
+    return `
+      <div class="error-item">
+        <span class="error-key">${display}</span>
+        <div class="error-bar"><div class="error-bar-fill" style="width:${pct}%"></div></div>
+        <span class="error-count">${count}</span>
+      </div>`;
+  }).join('');
+
+  const fingerEntries = Object.entries(stats.byFinger).sort((a, b) => b[1] - a[1]);
+  const fingerHtml = fingerEntries.map(([f, count]) => {
+    const name = FINGER_NAMES[f] || f;
+    return `<span class="finger-chip">${name} <b>${count}</b></span>`;
+  }).join('');
+
+  content.innerHTML = `
+    <div class="error-list">${listHtml}</div>
+    <div class="finger-errors">${fingerHtml}</div>
+  `;
+}
+
+/* =========================================================
+   ЛОГИКА УРОКА
+   ========================================================= */
+function startLesson(lesson) {
+  state.lesson = lesson;
+  state.text = buildText(lesson);
+  state.index = 0;
+  state.correct = 0;
+  state.total = 0;
+  state.errors = 0;
+  state.started = false;
+  state.finished = false;
+  state.startTime = 0;
+  clearInterval(state.timerId);
+
+  state.errorStats = { byChar: {}, byCode: {}, byFinger: {}, total: 0 };
+
+  $('lessonName').textContent = lesson.title;
+  $('statSpeed').textContent = '0';
+  $('statAcc').textContent = '100%';
+  $('statErr').textContent = '0';
+
+  menuView.hidden = true;
+  practiceView.hidden = false;
+  resultOverlay.hidden = true;
+
+  buildMaps(state.layout);
+  renderKeyboard();
+  renderText();
+  setCurrent(0);
+  updateProgress();
+
+  if (schemeOpen) { renderScheme(); syncSchemeHighlight(); }
+}
+
+function backToMenu() {
+  clearInterval(state.timerId);
+  state.finished = true;
+  menuView.hidden = false;
+  practiceView.hidden = true;
+  resultOverlay.hidden = true;
+  renderMenu();
+}
+
+function restartLesson() { if (state.lesson) startLesson(state.lesson); }
+
+function finishLesson() {
+  state.finished = true;
+  clearInterval(state.timerId);
+
+  const speed = currentSpeed();
+  const acc = currentAccuracy();
+  const time = Math.max(1, Math.round(elapsed()));
+
+  $('rSpeed').textContent = speed;
+  $('rAcc').textContent = acc + '%';
+  $('rErr').textContent = state.errors;
+  $('rTime').textContent = time + 'с';
+  $('resultSub').textContent = state.lesson.title;
+
+  const prev = getBest(state.lesson.id);
+  const noteEl = $('recordNote');
+  if (speed > prev && acc >= 80) {
+    safeStorage.set(bestKey(state.lesson.id), String(speed));
+    noteEl.innerHTML = '<span>★</span> Новый рекорд!';
+    noteEl.className = 'record-note';
+    noteEl.style.color = '';
+  } else if (prev) {
+    noteEl.textContent = `Лучший результат: ${prev} зн/мин`;
+    noteEl.className = 'record-note';
+    noteEl.style.color = 'var(--muted)';
+  } else {
+    noteEl.textContent = '';
+  }
+
+  renderErrorStats();
+
+  /* 🎺 Фанфары в конце урока */
+  playFanfare();
+
+  resultOverlay.hidden = false;
+}
+
+/* =========================================================
+   ВВОД
+   ========================================================= */
+function flashKey(code) {
+  const el = keyboardEl.querySelector(`.key[data-code="${code}"]`);
+  if (!el) return;
+  el.classList.add('pressed');
+  setTimeout(() => el.classList.remove('pressed'), 110);
+}
+
+function onKeyDown(e) {
+  if (practiceView.hidden || state.finished) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.code === 'Space') e.preventDefault();
+  if (e.key === 'Tab') { e.preventDefault(); return; }
+
+  if (['Shift','Control','Alt','Meta','CapsLock','Escape','Tab','Enter','Backspace','Delete',
+       'ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','PageUp','PageDown',
+       'F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12'].includes(e.key)) return;
+
+  const expected = state.text[state.index];
+  if (expected === undefined) return;
+
+  const L = LAYOUTS[state.layout];
+  let typed = null;
+
+  if (e.code === 'Space') typed = ' ';
+  else if (e.shiftKey && L.shift && L.shift[e.code]) typed = L.shift[e.code];
+  else if (L.chars[e.code]) typed = L.chars[e.code];
+  else if (e.key && e.key.length === 1) typed = e.key.toLowerCase();
+
+  if (typed === null) return;
+
+  flashKey(e.code);
+  if (!state.started) startTimer();
+
+  state.total++;
+  const el = state.charEls[state.index];
+
+  if (typed === expected) {
+    state.correct++;
+    if (el) { el.classList.remove('err'); el.classList.add('done'); }
+    state.index++;
+    updateProgress();
+
+    if (state.index >= state.text.length) {
+      updateStats(); finishLesson(); return;
+    }
+    setCurrent(state.index);
+  } else {
+    state.errors++;
+
+    const expectedCode = state.charToCode[expected];
+    const expectedFinger = state.charToFinger[expected];
+    const es = state.errorStats;
+    es.total++;
+    es.byChar[expected] = (es.byChar[expected] || 0) + 1;
+    if (expectedCode) es.byCode[expectedCode] = (es.byCode[expectedCode] || 0) + 1;
+    if (expectedFinger) es.byFinger[expectedFinger] = (es.byFinger[expectedFinger] || 0) + 1;
+
+    if (el) {
+      el.classList.remove('err');
+      void el.offsetWidth;
+      el.classList.add('err');
+      setTimeout(() => el.classList.remove('err'), 400);
+    }
+  }
+
+  updateStats();
+}
+
+/* =========================================================
+   СХЕМА
+   ========================================================= */
+function applySchemeState() {
+  if (!schemePanel || !schemeToggleBtn) return;
+  schemePanel.hidden = !schemeOpen;
+  schemeToggleBtn.classList.toggle('active', schemeOpen);
+  schemeToggleBtn.textContent = schemeOpen ? 'Скрыть схему пальцев' : 'Схема пальцев';
+}
+
+if (schemeToggleBtn) {
+  schemeToggleBtn.addEventListener('click', () => {
+    schemeOpen = !schemeOpen;
+    safeStorage.set('tt-scheme-open', schemeOpen ? '1' : '0');
+    applySchemeState();
+    if (schemeOpen) { renderScheme(); syncSchemeHighlight(); }
+  });
+}
+
+/* =========================================================
+   РАСКЛАДКА
+   ========================================================= */
+$('layoutSwitch').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-layout]');
+  if (!btn) return;
+  const layout = btn.dataset.layout;
+  if (layout === state.layout) return;
+
+  state.layout = layout;
+  document.querySelectorAll('#layoutSwitch button').forEach(b => {
+    b.classList.toggle('active', b.dataset.layout === layout);
+  });
+  buildMaps(layout);
+
+  if (!practiceView.hidden && state.lesson) {
+    const suffix = state.lesson.id.split('-').slice(1).join('-');
+    const lesson = LESSONS[layout].find(l => l.id === `${layout}-${suffix}`) || LESSONS[layout][0];
+    startLesson(lesson);
+  } else {
+    renderMenu();
+  }
+});
+
+/* =========================================================
+   СОБЫТИЯ
+   ========================================================= */
+document.addEventListener('keydown', onKeyDown);
+$('backBtn').addEventListener('click', backToMenu);
+$('retryBtn').addEventListener('click', restartLesson);
+$('menuBtn').addEventListener('click', backToMenu);
+
+/* =========================================================
+   ИНИЦИАЛИЗАЦИЯ
+   ========================================================= */
+try {
+  applyTheme();
+  updateSoundBtn();
+  buildMaps(state.layout);
+  renderMenu();
+  applySchemeState();
+  renderScheme();
+} catch (err) {
+  console.error('Ошибка инициализации:', err);
+  document.body.insertAdjacentHTML('beforeend', `
+    <div style="position:fixed;bottom:20px;left:20px;right:20px;padding:16px;
+                background:#f87171;color:#fff;border-radius:12px;
+                font-family:sans-serif;z-index:9999;font-size:14px;line-height:1.5">
+      <b>Ошибка инициализации:</b> ${err.message}<br>
+      Откройте консоль (F12) — там подробности.
+    </div>
+  `);
+}
+</script>
+</body>
+</html>
